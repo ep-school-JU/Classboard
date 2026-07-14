@@ -1,0 +1,304 @@
+/**
+ * @fileoverview Système de disposition en grille (CSS Grid) réactive pour ClassBoard.
+ */
+
+/* --- Configuration Globale et Reset --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    background: var(--bg-gradient, var(--bg-main)); /* Utilise le dégradé moderne si dispo */
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Empêche tout défilement global sur le TBI */
+    user-select: none; /* Évite les sélections de texte involontaires en mode tactile */
+}
+
+/* --- Grille Principale (Dashboard) --- */
+.dashboard-grid {
+    display: grid;
+    /* Grille de 12 colonnes et 8 lignes égales sur l'espace disponible */
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 12px;
+    flex-grow: 1;
+    padding: 15px;
+    width: 100%;
+    height: calc(100vh - 60px); /* Laisse de la place pour la barre d'outils du bas */
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* --- Éléments de la grille (Widgets) --- */
+.grid-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--shadow-widget);
+    backdrop-filter: blur(12px); /* Effet de verre dépoli très moderne */
+    -webkit-backdrop-filter: blur(12px);
+    padding: 12px;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Effet de survol léger sur ordinateur */
+.grid-item:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Classe utilitaire pour masquer dynamiquement un widget */
+.grid-item.is-hidden {
+    display: none !important;
+}
+
+/* --- Barre d'outils du bas (Dock) --- */
+.control-dock {
+    height: 60px;
+    background: var(--dock-bg); /* Utilise la couleur du dock de chaque thème */
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    z-index: 100;
+}
+
+.dock-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.dock-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    border-radius: var(--border-radius-small);
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dock-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent-color);
+}
+
+.dock-btn:active {
+    transform: scale(0.95);
+}
+
+.dock-select {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    border-radius: var(--border-radius-small);
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+
+/* --- Volet de Configuration Latéral (Settings) --- */
+.settings-panel {
+    position: fixed;
+    top: 0;
+    right: -320px; /* Masqué par défaut sur la droite */
+    width: 320px;
+    height: 100%;
+    background: #0f172a;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-panel[aria-hidden="false"] {
+    transform: translateX(-320px); /* Glisse vers la gauche pour apparaître */
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.settings-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+    opacity: 1;
+}
+
+.settings-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.settings-section {
+    margin-bottom: 24px;
+}
+
+.settings-section h3 {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.settings-divider {
+    border: 0;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 20px 0;
+}
+
+/* --- Commutateurs d'activation (Toggle Switches) --- */
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    width: 42px;
+    height: 22px;
+    background-color: #334155;
+    border-radius: 34px;
+    position: relative;
+    transition: var(--transition-smooth);
+    margin-right: 12px;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: var(--transition-smooth);
+}
+
+.toggle-switch input:checked + .slider {
+    background-color: var(--accent-color);
+}
+
+.toggle-switch input:checked + .slider::before {
+    transform: translateX(20px);
+}
+
+.label-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Boutons d'actions critiques dans les paramètres */
+.btn-danger {
+    width: 100%;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    border-radius: var(--border-radius-small);
+    padding: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: white;
+}
+
+/* Voile noir translucide en arrière-plan des paramètres */
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.settings-overlay[aria-hidden="false"] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* --- Adaptabilité Tactile / Tailles de Polices (Accessibilité) --- */
+html[data-size="large"] .grid-item {
+    padding: 15px;
+}
+html[data-size="huge"] .grid-item {
+    padding: 18px;
+}
+
+/* --- Support pour les ratios d'affichage et petites résolutions (Tablettes) --- */
+@media (max-width: 1024px) or (max-height: 700px) {
+    .dashboard-grid {
+        gap: 8px;
+        padding: 8px;
+    }
+    .grid-item {
+        padding: 8px;
+        border-radius: var(--border-radius-medium);
+    }
+}

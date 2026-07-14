@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClassBoard - Tableau de Bord Interactif</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+</head>
+<body class="theme-minimal">
+
+    <main id="dashboard-grid" class="dashboard-grid">
+        <clock-widget id="widget-clock" class="grid-item" data-x="0" data-y="0" data-w="4" data-h="2"></clock-widget>
+        
+        <sound-widget id="widget-sound" class="grid-item" data-x="0" data-y="2" data-w="4" data-h="2"></sound-widget>
+        
+        <timer-widget id="widget-timer" class="grid-item" data-x="4" data-y="0" data-w="2" data-h="2"></timer-widget>
+        
+        <noise-widget id="widget-noise" class="grid-item" data-x="4" data-y="2" data-w="2" data-h="2"></noise-widget>
+        
+        <schedule-widget id="widget-schedule" class="grid-item" data-x="6" data-y="0" data-w="3" data-h="4"></schedule-widget>
+        
+        <homework-widget id="widget-homework" class="grid-item" data-x="0" data-y="4" data-w="3" data-h="4"></homework-widget>
+
+        <random-widget id="widget-random" class="grid-item" data-x="9" data-y="0" data-w="3" data-h="3"></random-widget>
+
+        <team-builder-widget id="widget-teambuilder" class="grid-item" data-x="8" data-y="3" data-w="4" data-h="3"></team-builder-widget>
+
+        <score-widget id="widget-score" class="grid-item" data-x="4" data-y="6" data-w="4" data-h="2"></score-widget>
+    </main>
+
+    <nav class="control-dock">
+        <div class="dock-actions">
+            <button id="btn-mic" class="dock-btn">🎤 Off</button>
+            <select id="theme-selector" class="dock-select">
+                <option value="theme-minimal">Minimal 🌌</option>
+                <option value="theme-slate">Ardoise 🍏</option>
+                <option value="theme-forest">Forêt 🌲</option>
+                <option value="theme-ocean">Océan 🌊</option>
+                <option value="theme-autumn">Automne 🍁</option>
+                <option value="theme-spring">Printemps 🌸</option>
+            </select>
+            <button id="btn-export" class="dock-btn">💾 Sauver</button>
+            <button id="btn-import" class="dock-btn">📂 Charger</button>
+            <button id="btn-settings" class="dock-btn">⚙️</button>
+            <button id="btn-fullscreen" class="dock-btn">🔲 (F)</button>
+        </div>
+        <input type="file" id="import-file" style="display: none;" accept=".json">
+    </nav>
+
+    <aside id="settings-panel" class="settings-panel" aria-hidden="true">
+        <div class="settings-header">
+            <h2>Configuration</h2>
+            <button id="btn-close-settings" class="close-btn">✕</button>
+        </div>
+        <div class="settings-content">
+            <section class="settings-section">
+                <h3>Widgets actifs</h3>
+                <div class="control-group">
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-clock" checked data-widget="widget-clock"><span class="slider"></span><span class="label-text">⏱️ Horloge</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-sound" checked data-widget="widget-sound"><span class="slider"></span><span class="label-text">🔊 Sons</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-timer" checked data-widget="widget-timer"><span class="slider"></span><span class="label-text">⏲️ Minuteur</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-noise" checked data-widget="widget-noise"><span class="slider"></span><span class="label-text">🎤 Sonomètre</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-schedule" checked data-widget="widget-schedule"><span class="slider"></span><span class="label-text">📅 Programme</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-homework" checked data-widget="widget-homework"><span class="slider"></span><span class="label-text">📝 Devoirs</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-random" checked data-widget="widget-random"><span class="slider"></span><span class="label-text">🎲 Tirage au sort</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-teambuilder" checked data-widget="widget-teambuilder"><span class="slider"></span><span class="label-text">👥 Groupes</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-score" checked data-widget="widget-score"><span class="slider"></span><span class="label-text">🏆 Scores</span></label>
+                </div>
+            </section>
+            <hr class="settings-divider">
+            <section class="settings-section">
+                <h3>Accessibilité</h3>
+                <select id="font-size-adjust" class="dock-select">
+                    <option value="normal">Standard (Normal)</option>
+                    <option value="large">Grand (TBI court)</option>
+                    <option value="huge">Très grand (Visibilité 10m+)</option>
+                </select>
+            </section>
+            <hr class="settings-divider">
+            <section class="settings-section">
+                <button id="btn-reset-app" class="btn-danger">⚠️ Réinitialiser toutes les données</button>
+            </section>
+        </div>
+    </aside>
+    <div id="settings-overlay" class="settings-overlay" aria-hidden="true"></div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
