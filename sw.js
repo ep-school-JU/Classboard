@@ -2,7 +2,7 @@
  * @fileoverview Service Worker pour ClassBoard - Gestion du fonctionnement hors-ligne (PWA).
  */
 
-const CACHE_NAME = 'classboard-v2';
+const CACHE_NAME = 'classboard-v3'; // On passe de v2 à v3 pour forcer la mise à jour
 
 // Liste complète et mise à jour de toutes les ressources de l'application
 const ASSETS_TO_CACHE = [

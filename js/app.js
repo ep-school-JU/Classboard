@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. Gestion du sélecteur de Thèmes
-    const savedTheme = StorageManager.get('classboard-theme', 'theme-minimal');
+// 6. Gestion du sélecteur de Thèmes (Cosmique par défaut)
+    const savedTheme = StorageManager.get('classboard-theme', 'theme-cosmic');
     document.body.className = savedTheme;
     themeSelector.value = savedTheme;
 
