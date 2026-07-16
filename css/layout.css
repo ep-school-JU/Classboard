@@ -1,9 +1,9 @@
 /**
- * @fileoverview Système de disposition en grille (CSS Grid) réactive pour ClassBoard.
+ * @fileoverview Système de disposition corrigé : défilement autorisé et dock stable.
  */
 
 /* ==========================================
-   CONFIG GLOBALE & RESET
+   CONFIG GLOBALE (Scroll activé)
    ========================================== */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -12,7 +12,7 @@
 body {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh; /* Permet à la page de s'étendre si nécessaire */
     width: 100vw;
     background-color: var(--bg-main);
     background-image: var(--bg-gradient);
@@ -20,181 +20,64 @@ body {
     font-family: var(--font-main);
     margin: 0;
     padding: 0;
-    overflow: hidden;
-    user-select: none;
+    overflow-y: auto; /* Active le défilement vertical ici */
 }
 
 /* ==========================================
-   GRILLE PRINCIPALE (DASHBOARD)
-   --- CRUCIAL POUR LE DÉPLACEMENT ET LE REDIMENSIONNEMENT ---
+   GRILLE (Dashboard)
    ========================================== */
 .dashboard-grid {
     display: grid;
-    /* Crée une grille de 12 colonnes et 8 lignes égales sur l'écran */
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: repeat(8, 1fr);
-    gap: 12px;
-    flex-grow: 1;
-    padding: 15px;
+    /* On définit une hauteur minimale pour les lignes afin d'éviter que ce soit trop compressé */
+    grid-auto-rows: minmax(150px, auto); 
+    gap: 15px;
+    padding: 20px;
     width: 100%;
-    height: calc(100vh - 60px); /* Laisse de la place pour le dock */
+    /* Pas de height fixe ici pour permettre le défilement */
     position: relative;
-    box-sizing: border-box;
 }
 
-/* --- Éléments de la grille (Widgets) --- */
 .grid-item {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
     border-radius: var(--border-radius-large);
-    box-shadow: var(--shadow-widget);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 12px;
-    overflow: hidden;
-    transition: var(--theme-transition);
+    padding: 15px;
     display: flex;
     flex-direction: column;
     position: relative;
-}
-
-.grid-item.is-hidden {
-    display: none !important;
+    min-height: 200px; /* Taille minimale pour éviter que le texte soit tronqué */
 }
 
 /* ==========================================
-   BARRE D'OUTILS DU BAS (DOCK)
+   DOCK (Barre du bas corrigée)
    ========================================== */
 .control-dock {
-    height: 60px;
+    height: 70px;
     background: var(--dock-bg);
     border-top: 1px solid var(--border-card);
     display: flex;
+    flex-direction: row; /* Force la ligne horizontale */
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
-    z-index: 100;
+    flex-shrink: 0; /* Empêche le dock de se faire écraser */
+    position: sticky;
+    bottom: 0;
+    z-index: 1000;
 }
 
+/* S'assure que les groupes d'actions restent sur une ligne */
 .dock-actions-left, .dock-actions-right {
     display: flex;
-    gap: 12px;
+    flex-direction: row;
+    flex-wrap: nowrap; /* Empêche le passage à la ligne */
+    gap: 10px;
     align-items: center;
 }
 
-.dock-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: var(--text-primary);
-    border-radius: var(--border-radius-medium);
-    padding: 10px 18px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s, background-color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.dock-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--accent-color);
-}
-
-.dock-btn:active {
-    transform: scale(0.95);
-}
-
+/* Pour le select, on s'assure qu'il a assez de place */
 .dock-select {
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    color: var(--text-primary);
-    border-radius: var(--border-radius-medium);
-    padding: 10px 14px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-/* Style actif sur le bouton du dock */
-.dock-btn.is-active {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: #fff;
-    box-shadow: 0 0 12px var(--accent-color);
-}
-
-/* ==========================================
-   MODE ÉDITION INTÉGRÉ
-   ========================================== */
-.grid-item .edit-overlay {
-    display: none;
-}
-
-.dashboard-grid.is-editing .grid-item .edit-overlay {
-    display: flex;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border-radius: var(--border-radius-large);
-    z-index: 50;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
-
-.edit-arrows-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 36px);
-    grid-template-rows: repeat(3, 36px);
-    gap: 6px;
-}
-
-.edit-btn {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #ffffff;
-    border-radius: var(--border-radius-small);
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, border-color 0.2s;
-}
-
-.edit-btn:hover {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-}
-
-.edit-resize-row {
-    display: flex;
-    gap: 8px;
-}
-
-.edit-btn.resize-btn {
-    width: 54px;
-    height: 36px;
-    font-size: 0.85rem;
-    font-weight: bold;
-}
-
-.dashboard-grid.is-editing .grid-item {
-    animation: gentle-wiggle 0.3s infinite alternate ease-in-out;
-    border: 2px dashed var(--accent-color);
-}
-
-@keyframes gentle-wiggle {
-    0% { transform: rotate(-0.2deg); }
-    100% { transform: rotate(0.2deg); }
+    white-space: nowrap;
+    padding: 8px 12px;
 }
