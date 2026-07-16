@@ -304,9 +304,7 @@ html[data-size="huge"] .grid-item {
     }
 }
 
-/* =======================================================
-   INTERFACE DU MODE ÉDITION INTÉGRÉE
-   ======================================================= */
+/* --- Interface du Mode Édition Intégrée --- */
 
 /* Cache l'overlay d'édition par défaut */
 .grid-item .edit-overlay {
