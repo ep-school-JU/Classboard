@@ -64,19 +64,27 @@ body {
     display: none !important;
 }
 
-/* --- Barre d'outils du bas (Dock) --- */
+/* --- Barre d'outils du bas (Dock Moderne) --- */
 .control-dock {
     height: 60px;
     background: var(--dock-bg);
     border-top: 1px solid var(--border-card);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between; /* Aligne les éléments aux extrémités */
     padding: 0 20px;
     z-index: 100;
 }
 
-.dock-actions {
+/* Groupe d'actions à gauche (Thème et Edition) */
+.dock-actions-left {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Groupe d'actions à droite (Plein écran et Paramètres) */
+.dock-actions-right {
     display: flex;
     gap: 12px;
     align-items: center;
@@ -86,15 +94,15 @@ body {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text-primary);
-    border-radius: var(--border-radius-small);
-    padding: 8px 16px;
+    border-radius: var(--border-radius-medium); /* Plus arrondi pour correspondre à la v2 */
+    padding: 10px 18px;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s, background-color 0.2s;
+    transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .dock-btn:hover {
@@ -110,19 +118,32 @@ body {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
     color: var(--text-primary);
-    border-radius: var(--border-radius-small);
-    padding: 8px 12px;
+    border-radius: var(--border-radius-medium);
+    padding: 10px 14px;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     outline: none;
+    transition: border-color 0.2s;
+}
+
+.dock-select:hover {
+    border-color: var(--accent-color);
+}
+
+/* Style actif sur le bouton d'édition dans le dock */
+.dock-btn.is-active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 0 12px var(--accent-color);
 }
 
 /* --- Volet de Configuration Latéral (Settings) --- */
 .settings-panel {
     position: fixed;
     top: 0;
-    right: -320px; /* Masqué par défaut sur la droite */
+    right: -320px;
     width: 320px;
     height: 100%;
     background: #0f172a;
@@ -135,7 +156,7 @@ body {
 }
 
 .settings-panel[aria-hidden="false"] {
-    transform: translateX(-320px); /* Glisse vers la gauche pour apparaître */
+    transform: translateX(-320px);
 }
 
 .settings-header {
@@ -265,7 +286,7 @@ body {
     color: white;
 }
 
-/* Voile noir translucide en arrière-plan des paramètres */
+/* Voile noir de fond pour les paramètres */
 .settings-overlay {
     position: fixed;
     top: 0;
@@ -304,67 +325,87 @@ html[data-size="huge"] .grid-item {
     }
 }
 
-/* --- Interface du Mode Édition Intégrée --- */
+/* =======================================================
+   INTERFACE DU MODE ÉDITION INTÉGRÉE
+   ======================================================= */
 
 /* Cache l'overlay d'édition par défaut */
 .grid-item .edit-overlay {
-    display: none;
+    display: none !important;
 }
 
-/* Quand la grille passe en mode édition, on affiche l'overlay */
+/* Quand la grille passe en mode édition, on force l'affichage de l'overlay */
 .dashboard-grid.is-editing .grid-item .edit-overlay {
-    display: flex;
+    display: flex !important;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(11, 12, 16, 0.92); /* Fond très sombre pour contraster */
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border-radius: var(--border-radius-large);
     z-index: 50;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 15px;
+    box-sizing: border-box;
+    padding: 10px;
 }
 
 /* Flèches de déplacement en croix */
 .edit-arrows-grid {
     display: grid;
-    grid-template-columns: repeat(3, 36px);
-    grid-template-rows: repeat(3, 36px);
+    grid-template-columns: repeat(3, 40px);
+    grid-template-rows: repeat(3, 40px);
     gap: 6px;
 }
+
+/* Centre les flèches */
+.edit-arrows-grid .edit-btn:nth-child(1) { grid-area: 1 / 2; } /* Haut */
+.edit-arrows-grid .edit-btn:nth-child(2) { grid-area: 2 / 1; } /* Gauche */
+.edit-arrows-grid .edit-btn:nth-child(3) { grid-area: 2 / 3; } /* Droite */
+.edit-arrows-grid .edit-btn:nth-child(4) { grid-area: 3 / 2; } /* Bas */
 
 .edit-btn {
     background: rgba(255, 255, 255, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #ffffff;
+    color: #ffffff !important;
     border-radius: var(--border-radius-small);
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, border-color 0.2s;
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    width: 100%;
+    height: 100%;
 }
 
 .edit-btn:hover {
     background: var(--accent-color);
     border-color: var(--accent-color);
+    transform: scale(1.05);
+}
+
+.edit-btn:active {
+    transform: scale(0.95);
 }
 
 /* Rangée des boutons de redimensionnement */
 .edit-resize-row {
     display: flex;
     gap: 8px;
+    width: 100%;
+    max-width: 132px;
+    justify-content: center;
 }
 
 .edit-btn.resize-btn {
-    width: 54px;
-    height: 36px;
+    width: 58px;
+    height: 38px;
     font-size: 0.85rem;
     font-weight: bold;
 }
@@ -372,18 +413,10 @@ html[data-size="huge"] .grid-item {
 /* Légère vibration visuelle pour indiquer le mode édition */
 .dashboard-grid.is-editing .grid-item {
     animation: gentle-wiggle 0.3s infinite alternate ease-in-out;
-    border: 2px dashed var(--accent-color);
+    border: 2px dashed var(--accent-color) !important;
 }
 
 @keyframes gentle-wiggle {
-    0% { transform: rotate(-0.2deg); }
-    100% { transform: rotate(0.2deg); }
-}
-
-/* Style actif sur le bouton du dock */
-.dock-btn.is-active {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: #fff;
-    box-shadow: 0 0 12px var(--accent-color);
+    0% { transform: rotate(-0.3deg); }
+    100% { transform: rotate(0.3deg); }
 }
