@@ -20,12 +20,13 @@ class AudioSystem {
         this.loadSound('buzzer', './audio/buzzer.mp3');
         this.loadSound('rangement', './audio/rangement.mp3');
         this.loadSound('retour', './audio/retour.mp3');
+        
+        // NOUVEAU : Son spécifique pour le tirage au sort des élèves
+        this.loadSound('tirage', './audio/tirage.mp3');
     }
 
     /**
      * Télécharge un fichier audio et le décode en mémoire.
-     * @param {string} name - Le nom court associé au son.
-     * @param {string} url - Le chemin local du fichier MP3.
      */
     async loadSound(name, url) {
         try {
@@ -43,7 +44,6 @@ class AudioSystem {
 
     /**
      * Joue un son préalablement chargé en mémoire.
-     * @param {string} name - Le nom court du son à jouer.
      */
     play(name) {
         if (!this.ctx) {

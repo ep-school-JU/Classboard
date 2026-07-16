@@ -1,9 +1,10 @@
 /**
- * @fileoverview Point d'entrée principal de l'application ClassBoard.
- * Orchestre les thèmes, l'affichage des volets, la sauvegarde et l'initialisation audio.
+ * @fileoverview Point d'entrée principal révisé de l'application ClassBoard.
+ * Orchestre l'édition de grille interactive, le plein écran moderne et les nouveaux thèmes.
  */
 
-// 1. Imports des composants et gestionnaires
+// 1. Imports des widgets indispensables
+import './components/base-widget.js';
 import './components/clock-widget.js';
 import './components/sound-widget.js';
 import './components/timer-widget.js';
@@ -19,32 +20,30 @@ import { StorageManager } from './storage.js';
 import { audioSystem } from './audio.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 2. Initialisation de la grille
+    // 2. Lancement de l'infrastructure de la grille
     const dashboard = new DashboardGrid('#dashboard-grid');
 
-    // 3. Éléments du DOM
-    const btnMic = document.getElementById('btn-mic');
+    // 3. Éléments interactifs du DOM
     const themeSelector = document.getElementById('theme-selector');
-    const btnExport = document.getElementById('btn-export');
-    const btnImport = document.getElementById('btn-import');
-    const importFile = document.getElementById('import-file');
+    const btnEditGrid = document.getElementById('btn-edit-grid');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
     const btnSettings = document.getElementById('btn-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
     const settingsPanel = document.getElementById('settings-panel');
     const settingsOverlay = document.getElementById('settings-overlay');
-    const btnResetApp = document.getElementById('btn-reset-app');
+    const btnExport = document.getElementById('btn-export');
+    const btnImport = document.getElementById('btn-import');
+    const importFile = document.getElementById('import-file');
     const fontSizeAdjust = document.getElementById('font-size-adjust');
-    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const btnResetApp = document.getElementById('btn-reset-app');
 
-    // 4. Initialisation de l'AudioContext lors de la première interaction utilisateur
+    // 4. Lancement audio automatique lors du premier clic de l'enseignant sur l'écran
     let audioInitialized = false;
     const initAudioContext = () => {
         if (!audioInitialized) {
             audioSystem.init();
             audioInitialized = true;
-            console.log("Système audio initialisé avec succès !");
-            btnMic.textContent = "🎤 Actif";
-            // Nettoyage des événements d'écouteurs pour ne pas le réinitialiser en boucle
+            console.log("🔊 Système audio initialisé.");
             document.removeEventListener('click', initAudioContext);
             document.removeEventListener('touchstart', initAudioContext);
         }
@@ -52,20 +51,53 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', initAudioContext);
     document.addEventListener('touchstart', initAudioContext);
 
-    // 5. Gestion des Thèmes
-    const savedTheme = StorageManager.get('app_theme', 'theme-minimal');
+    // 5. Gestion des Thèmes de Classe Enjoués
+    const savedTheme = StorageManager.get('app_theme', 'theme-cosmic');
     document.body.className = savedTheme;
     themeSelector.value = savedTheme;
 
     themeSelector.addEventListener('change', (e) => {
         const theme = e.target.value;
         document.body.className = theme;
-        // On conserve la taille de police si elle a été ajustée
         applyFontSize(fontSizeAdjust.value);
         StorageManager.save('app_theme', theme);
     });
 
-    // 6. Gestion du Volet Paramètres (Ouverture / Fermeture)
+    // 6. Action : Déclencher le Mode Édition de Grille Tactile
+    btnEditGrid.addEventListener('click', () => {
+        dashboard.toggleEditing();
+        // Change l'apparence visuelle du bouton dans la barre pour indiquer l'état
+        if (dashboard.isEditing) {
+            btnEditGrid.textContent = "💾 Sauver la grille";
+            btnEditGrid.classList.add('is-active');
+        } else {
+            btnEditGrid.textContent = "📐 Éditer la grille";
+            btnEditGrid.classList.remove('is-active');
+        }
+    });
+
+    // 7. Gestion du Plein Écran Moderne (Fermeture et Ouverture)
+    btnFullscreen.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen()
+                .then(() => {
+                    btnFullscreen.innerHTML = `
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+                        </svg> Réduire`;
+                })
+                .catch((err) => console.error(`Erreur plein écran : ${err.message}`));
+        } else {
+            document.exitFullscreen().then(() => {
+                btnFullscreen.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                    </svg> Plein Écran`;
+            });
+        }
+    });
+
+    // 8. Contrôle du Panneau de Configuration Latéral
     const toggleSettings = (open) => {
         settingsPanel.setAttribute('aria-hidden', !open);
         settingsOverlay.setAttribute('aria-hidden', !open);
@@ -75,13 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCloseSettings.addEventListener('click', () => toggleSettings(false));
     settingsOverlay.addEventListener('click', () => toggleSettings(false));
 
-    // 7. Masquer/Afficher les widgets dynamiquement
+    // 9. Activation et désactivation à la carte des widgets
     const checkboxes = document.querySelectorAll('.toggle-switch input');
     checkboxes.forEach(box => {
         const widgetId = box.getAttribute('data-widget');
         const widget = document.getElementById(widgetId);
         
-        // Charger l'état sauvegardé
         const isVisible = StorageManager.get(`visible_${widgetId}`, true);
         box.checked = isVisible;
         if (!isVisible && widget) {
@@ -94,18 +125,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (widget) {
                 if (checked) {
                     widget.classList.remove('is-hidden');
-                    widget.style.display = 'block';
+                    widget.style.display = 'flex';
                 } else {
                     widget.classList.add('is-hidden');
                     widget.style.display = 'none';
                 }
-                dashboard.updateGridMetrics(); // Recalculer le placement de la grille
+                dashboard.updateGridMetrics();
             }
             StorageManager.save(`visible_${widgetId}`, checked);
         });
     });
 
-    // 8. Gestion de l'Accessibilité (Tailles de police globales)
+    // 10. Gestion fine des Tailles de police (Accessibilité)
     const applyFontSize = (size) => {
         document.documentElement.removeAttribute('data-size');
         if (size !== 'normal') {
@@ -123,18 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         StorageManager.save('app_font_size', size);
     });
 
-    // 9. Plein écran tactile (F)
-    btnFullscreen.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch((err) => {
-                console.error(`Erreur lors du passage en plein écran : ${err.message}`);
-            });
-        } else {
-            document.exitFullscreen();
-        }
-    });
-
-    // 10. Sauvegarde / Restauration (Données globales JSON)
+    // 11. Sauvegardes JSON Externes
     btnExport.addEventListener('click', () => StorageManager.exportToFile());
     btnImport.addEventListener('click', () => importFile.click());
     
@@ -143,28 +163,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) {
             StorageManager.importFromFile(file)
                 .then(() => window.location.reload())
-                .catch((err) => alert(`Erreur de chargement : ${err.message}`));
+                .catch((err) => alert(`Erreur de chargement de fichier de classe : ${err.message}`));
         }
     });
 
-    // 11. Réinitialisation complète
+    // 12. Réinitialisation Globale des Données
     btnResetApp.addEventListener('click', () => {
-        if (confirm("Voulez-vous supprimer toutes vos configurations (devoirs, élèves, thèmes) ? Cette action est irréversible.")) {
+        if (confirm("Voulez-vous supprimer l'agencement personnalisé des widgets, vos thèmes et données ? Cette action est définitive.")) {
             localStorage.clear();
             window.location.reload();
         }
     });
 
-    // 12. Enregistrement du Service Worker pour le mode 100% hors-ligne
+    // 13. Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
-                .then((registration) => {
-                    console.log('Service Worker installé avec succès ! Portée :', registration.scope);
-                })
-                .catch((err) => {
-                    console.error('Échec de l\'installation du Service Worker :', err);
-                });
+                .then((registration) => console.log('SW actif:', registration.scope))
+                .catch((err) => console.error('Erreur SW:', err));
         });
     }
 });

@@ -3,12 +3,6 @@
  */
 
 export class StorageManager {
-    /**
-     * Récupère une valeur du stockage local.
-     * @param {string} key - La clé de stockage.
-     * @param {*} defaultValue - La valeur de retour par défaut si la clé n'existe pas.
-     * @returns {*} La valeur stockée (décodée du JSON) ou la valeur par défaut.
-     */
     static get(key, defaultValue = null) {
         try {
             const item = localStorage.getItem(key);
@@ -19,11 +13,6 @@ export class StorageManager {
         }
     }
 
-    /**
-     * Enregistre une valeur dans le stockage local sous forme de chaîne JSON.
-     * @param {string} key - La clé de stockage.
-     * @param {*} value - La valeur à sauvegarder.
-     */
     static save(key, value) {
         try {
             localStorage.setItem(key, JSON.stringify(value));
@@ -32,9 +21,6 @@ export class StorageManager {
         }
     }
 
-    /**
-     * Exporte toutes les clés LocalStorage de ClassBoard dans un fichier JSON téléchargeable.
-     */
     static exportToFile() {
         const data = {};
         for (let i = 0; i < localStorage.length; i++) {
@@ -56,21 +42,14 @@ export class StorageManager {
         URL.revokeObjectURL(url);
     }
 
-    /**
-     * Importe un fichier JSON de configuration et l'applique au LocalStorage.
-     * @param {File} file - Le fichier JSON sélectionné par l'utilisateur.
-     * @returns {Promise<void>} Resolves lorsque l'importation est terminée.
-     */
     static importFromFile(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    // On vide l'ancien stockage avant d'injecter le nouveau
                     localStorage.clear();
                     for (const [key, value] of Object.entries(data)) {
-                        // Les valeurs exportées sont déjà des chaînes JSON, on les réinjecte telles quelles
                         localStorage.setItem(key, value);
                     }
                     resolve();

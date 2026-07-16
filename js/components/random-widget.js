@@ -290,7 +290,7 @@ export class RandomWidget extends BaseWidget {
                 clearInterval(interval);
                 this.resultDisplay.textContent = winner;
                 this.resultDisplay.classList.add('winner');
-                audioSystem.play('retour'); 
+                audioSystem.play('tirage');
                 
                 this.updateStats();
                 this.isAnimating = false;

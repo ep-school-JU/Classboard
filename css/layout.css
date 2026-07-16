@@ -1,5 +1,5 @@
 /**
- * @fileoverview Système de disposition en grille (CSS Grid) réactive pour ClassBoard.
+ * @fileoverview Système de disposition réactive et styles d'édition pour ClassBoard.
  */
 
 /* --- Configuration Globale et Reset --- */
@@ -12,26 +12,25 @@ body {
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    background: var(--bg-gradient, var(--bg-main)); /* Utilise le dégradé moderne si dispo */
+    background: var(--bg-gradient, var(--bg-main));
     color: var(--text-primary);
     font-family: var(--font-main);
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Empêche tout défilement global sur le TBI */
-    user-select: none; /* Évite les sélections de texte involontaires en mode tactile */
+    overflow: hidden;
+    user-select: none;
 }
 
 /* --- Grille Principale (Dashboard) --- */
 .dashboard-grid {
     display: grid;
-    /* Grille de 12 colonnes et 8 lignes égales sur l'espace disponible */
     grid-template-columns: repeat(12, 1fr);
     grid-template-rows: repeat(8, 1fr);
     gap: 12px;
     flex-grow: 1;
     padding: 15px;
     width: 100%;
-    height: calc(100vh - 60px); /* Laisse de la place pour la barre d'outils du bas */
+    height: calc(100vh - 60px);
     position: relative;
     box-sizing: border-box;
 }
@@ -42,37 +41,111 @@ body {
     border: 1px solid var(--border-card);
     border-radius: var(--border-radius-large);
     box-shadow: var(--shadow-widget);
-    backdrop-filter: blur(12px); /* Effet de verre dépoli très moderne */
+    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     padding: 12px;
     overflow: hidden;
-    transition: var(--transition-smooth);
+    transition: transform 0.2s ease, border-color 0.2s ease;
     display: flex;
     flex-direction: column;
     position: relative;
 }
 
-/* Effet de survol léger sur ordinateur */
-.grid-item:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-}
-
-/* Classe utilitaire pour masquer dynamiquement un widget */
 .grid-item.is-hidden {
     display: none !important;
+}
+
+/* --- Interface du Mode Édition Intégrée --- */
+/* Cache les flèches d'édition par défaut */
+.grid-item .edit-overlay {
+    display: none;
+}
+
+/* Quand la grille est en mode édition, on affiche la surcouche */
+.dashboard-grid.is-editing .grid-item .edit-overlay {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-radius: var(--border-radius-large);
+    z-index: 50;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Flèches de déplacement en croix */
+.edit-arrows-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 35px);
+    grid-template-rows: repeat(3, 35px);
+    gap: 4px;
+}
+
+.edit-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: var(--border-radius-small);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+}
+
+.edit-btn:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* Tailles (Agrandir / Réduire) */
+.edit-resize-row {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn.resize-btn {
+    width: 50px;
+    height: 35px;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* Vibration visuelle légère pour indiquer le mode édition */
+.dashboard-grid.is-editing .grid-item {
+    animation: gentle-wiggle 0.3s infinite alternate ease-in-out;
+    border: 2px dashed var(--accent-color);
+}
+
+@keyframes gentle-wiggle {
+    0% { transform: rotate(-0.2deg); }
+    100% { transform: rotate(0.2deg); }
 }
 
 /* --- Barre d'outils du bas (Dock) --- */
 .control-dock {
     height: 60px;
-    background: var(--dock-bg); /* Utilise la couleur du dock de chaque thème */
+    background: var(--dock-bg);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     padding: 0 20px;
     z-index: 100;
+}
+
+.dock-left, .dock-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .dock-actions {
@@ -105,6 +178,14 @@ body {
     transform: scale(0.95);
 }
 
+/* Style spécial quand le mode édition est activé dans le dock */
+.dock-btn.is-active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #ffffff;
+    box-shadow: 0 0 12px var(--accent-color);
+}
+
 .dock-select {
     background: rgba(30, 41, 59, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -121,7 +202,7 @@ body {
 .settings-panel {
     position: fixed;
     top: 0;
-    right: -320px; /* Masqué par défaut sur la droite */
+    right: -320px;
     width: 320px;
     height: 100%;
     background: #0f172a;
@@ -134,7 +215,7 @@ body {
 }
 
 .settings-panel[aria-hidden="false"] {
-    transform: translateX(-320px); /* Glisse vers la gauche pour apparaître */
+    transform: translateX(-320px);
 }
 
 .settings-header {
@@ -245,7 +326,7 @@ body {
     font-weight: 500;
 }
 
-/* Boutons d'actions critiques dans les paramètres */
+/* Bouton réinitialiser */
 .btn-danger {
     width: 100%;
     background: rgba(239, 68, 68, 0.15);
@@ -264,7 +345,7 @@ body {
     color: white;
 }
 
-/* Voile noir translucide en arrière-plan des paramètres */
+/* Voilage de fond noir pour les paramètres */
 .settings-overlay {
     position: fixed;
     top: 0;
@@ -283,7 +364,7 @@ body {
     pointer-events: auto;
 }
 
-/* --- Adaptabilité Tactile / Tailles de Polices (Accessibilité) --- */
+/* --- Adaptabilité Tactile / Tailles de Polices --- */
 html[data-size="large"] .grid-item {
     padding: 15px;
 }
@@ -291,7 +372,6 @@ html[data-size="huge"] .grid-item {
     padding: 18px;
 }
 
-/* --- Support pour les ratios d'affichage et petites résolutions (Tablettes) --- */
 @media (max-width: 1024px) or (max-height: 700px) {
     .dashboard-grid {
         gap: 8px;
