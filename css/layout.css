@@ -2,7 +2,9 @@
  * @fileoverview Système de disposition en grille (CSS Grid) réactive pour ClassBoard.
  */
 
-/* --- Configuration Globale et Reset --- */
+/* ==========================================
+   CONFIG GLOBALE & RESET
+   ========================================== */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -22,7 +24,9 @@ body {
     user-select: none; /* Évite les sélections de texte involontaires en mode tactile */
 }
 
-/* --- Grille Principale (Dashboard) --- */
+/* ==========================================
+   GRILLE PRINCIPALE (DASHBOARD)
+   ========================================== */
 .dashboard-grid {
     display: grid;
     /* Grille de 12 colonnes et 8 lignes égales sur l'espace disponible */
@@ -64,7 +68,9 @@ body {
     display: none !important;
 }
 
-/* --- Barre d'outils du bas (Dock Moderne) --- */
+/* ==========================================
+   BARRE D'OUTILS DU BAS (DOCK MODERNE)
+   ========================================== */
 .control-dock {
     height: 60px;
     background: var(--dock-bg);
@@ -139,7 +145,9 @@ body {
     box-shadow: 0 0 12px var(--accent-color);
 }
 
-/* --- Volet de Configuration Latéral (Settings) --- */
+/* ==========================================
+   VOLET DE CONFIGURATION LATÉRAL (SETTINGS)
+   ========================================== */
 .settings-panel {
     position: fixed;
     top: 0;
