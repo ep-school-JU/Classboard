@@ -1,12 +1,13 @@
 /**
- * @fileoverview Service Worker pour le fonctionnement 100% hors-ligne de ClassBoard.
+ * @fileoverview Service Worker pour ClassBoard - Gestion du fonctionnement hors-ligne (PWA).
  */
 
-const CACHE_NAME = 'classboard-v1';
+const CACHE_NAME = 'classboard-v2';
+
+// Liste complète et mise à jour de toutes les ressources de l'application
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './manifest.json',
   './css/layout.css',
   './css/variables.css',
   './js/app.js',
@@ -23,48 +24,61 @@ const ASSETS_TO_CACHE = [
   './js/components/random-widget.js',
   './js/components/team-builder-widget.js',
   './js/components/score-widget.js',
-  './assets/sounds/silence.mp3',
-  './assets/sounds/buzzer.mp3',
-  './assets/sounds/rangement.mp3',
-  './assets/sounds/retour.mp3'
+  './audio/silence.mp3',
+  './audio/buzzer.mp3',
+  './audio/rangement.mp3',
+  './audio/retour.mp3',
+  './audio/tirage.mp3' // Intégration de votre nouveau son de tirage
 ];
 
-// Phase d'installation : on met tous les fichiers essentiels en cache
-self.addEventListener('install', (e) => {
-  e.waitUntil(
+// Événement d'installation : on met tout en cache
+self.addEventListener('install', (event) => {
+  event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Service Worker] Mise en cache des ressources globales');
+      console.log('Service Worker : Mise en cache des ressources globales');
       return cache.addAll(ASSETS_TO_CACHE);
-    })
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// Phase d'activation : on nettoie les anciens caches s'il y a une mise à jour
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => {
+// Événement d'activation : on nettoie les anciens caches obsolètes
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('[Service Worker] Suppression de l\'ancien cache', key);
-            return caches.delete(key);
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log('Service Worker : Suppression de l\'ancien cache obsolète', cache);
+            return caches.delete(cache);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Stratégie d'interception : Cache-First (vitesse maximale)
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
+// Stratégie de Fetch : "Cache-First" (priorité au cache pour l'ultra-rapidité et le hors-ligne)
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(e.request);
+      return fetch(event.request).then((networkResponse) => {
+        // Optionnel : On peut mettre en cache à la volée les nouvelles requêtes réussies (ex: polices)
+        if (networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      });
+    }).catch(() => {
+      // Si le réseau et le cache échouent (ex: hors-ligne total sur une ressource non-mise en cache)
+      if (event.request.mode === 'navigate') {
+        return caches.match('./index.html');
+      }
     })
   );
 });

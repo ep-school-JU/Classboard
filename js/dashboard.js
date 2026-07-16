@@ -1,9 +1,6 @@
 /**
- * @fileoverview Gestionnaire de grille interactif.
- * Permet le déplacement et redimensionnement assisté des widgets et gère leur persistance.
+ * @fileoverview Gestionnaire de grille interactive (déplacement, redimensionnement et persistance).
  */
-
-import { StorageManager } from './storage.js';
 
 export class DashboardGrid {
     constructor(selector) {
@@ -13,19 +10,33 @@ export class DashboardGrid {
     }
 
     init() {
-        this.restoreLayout();
-        window.addEventListener('resize', () => this.updateGridMetrics());
+        this.loadLayout();
+        this.updateGridMetrics();
     }
 
     /**
-     * Applique les positions CSS Grid à tous les widgets visibles.
+     * Active ou désactive le mode édition de la grille.
+     */
+    toggleEditing() {
+        this.isEditing = !this.isEditing;
+        
+        if (this.isEditing) {
+            this.grid.classList.add('is-editing');
+            this.injectEditOverlays();
+        } else {
+            this.grid.classList.remove('is-editing');
+            this.removeEditOverlays();
+            this.saveLayout();
+        }
+        return this.isEditing;
+    }
+
+    /**
+     * Applique les coordonnées grid-column et grid-row du CSS à chaque élément.
      */
     updateGridMetrics() {
         const items = this.grid.querySelectorAll('.grid-item');
         items.forEach(item => {
-            if (item.classList.contains('is-hidden') || item.style.display === 'none') {
-                return;
-            }
             const x = parseInt(item.getAttribute('data-x')) || 0;
             const y = parseInt(item.getAttribute('data-y')) || 0;
             const w = parseInt(item.getAttribute('data-w')) || 2;
@@ -37,26 +48,12 @@ export class DashboardGrid {
     }
 
     /**
-     * Active ou désactive le mode édition de la grille.
-     */
-    toggleEditing() {
-        this.isEditing = !this.isEditing;
-        if (this.isEditing) {
-            this.grid.classList.add('is-editing');
-            this.injectEditOverlays();
-        } else {
-            this.grid.classList.remove('is-editing');
-            this.removeEditOverlays();
-        }
-    }
-
-    /**
-     * Injecte le panneau d'outils d'édition (flèches et tailles) dans chaque widget.
+     * Génère et injecte la surcouche de contrôle d'édition dans chaque widget.
      */
     injectEditOverlays() {
-        const items = this.grid.querySelectorAll('.grid-item:not(.is-hidden)');
+        const items = this.grid.querySelectorAll('.grid-item');
         items.forEach(item => {
-            // Éviter d'injecter plusieurs fois
+            // Éviter d'injecter plusieurs fois si déjà présent
             if (item.querySelector('.edit-overlay')) return;
 
             const overlay = document.createElement('div');
@@ -64,29 +61,30 @@ export class DashboardGrid {
             overlay.innerHTML = `
                 <div class="edit-arrows-grid">
                     <div></div>
-                    <button class="edit-btn arrow-up" title="Monter">⬆️</button>
+                    <button class="edit-btn move-up" title="Monter">▲</button>
                     <div></div>
-                    <button class="edit-btn arrow-left" title="Gauche">⬅️</button>
-                    <div style="display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#aaa;">Dépl.</div>
-                    <button class="edit-btn arrow-right" title="Droite">➡️</button>
+                    <button class="edit-btn move-left" title="Gauche">◀</button>
+                    <div style="display:flex; justify-content:center; align-items:center; color:#fff; font-size:1.2rem;">✥</div>
+                    <button class="edit-btn move-right" title="Droite">▶</button>
                     <div></div>
-                    <button class="edit-btn arrow-down" title="Descendre">⬇️</button>
+                    <button class="edit-btn move-down" title="Descendre">▼</button>
                     <div></div>
                 </div>
                 <div class="edit-resize-row">
-                    <button class="edit-btn resize-btn dec-w" title="Réduire largeur">W-</button>
-                    <button class="edit-btn resize-btn inc-w" title="Agrandir largeur">W+</button>
-                    <button class="edit-btn resize-btn dec-h" title="Réduire hauteur">H-</button>
-                    <button class="edit-btn resize-btn inc-h" title="Agrandir hauteur">H+</button>
+                    <button class="edit-btn resize-btn dec-w" title="Moins Large">↔ -</button>
+                    <button class="edit-btn resize-btn inc-w" title="Plus Large">↔ +</button>
+                    <button class="edit-btn resize-btn dec-h" title="Moins Haut">↕ -</button>
+                    <button class="edit-btn resize-btn inc-h" title="Plus Haut">↕ +</button>
                 </div>
             `;
 
-            // Écouteurs d'action
-            overlay.querySelector('.arrow-up').addEventListener('click', () => this.moveWidget(item, 0, -1));
-            overlay.querySelector('.arrow-down').addEventListener('click', () => this.moveWidget(item, 0, 1));
-            overlay.querySelector('.arrow-left').addEventListener('click', () => this.moveWidget(item, -1, 0));
-            overlay.querySelector('.arrow-right').addEventListener('click', () => this.moveWidget(item, 1, 0));
+            // Ajout des écouteurs de clics pour le déplacement
+            overlay.querySelector('.move-up').addEventListener('click', () => this.moveWidget(item, 0, -1));
+            overlay.querySelector('.move-down').addEventListener('click', () => this.moveWidget(item, 0, 1));
+            overlay.querySelector('.move-left').addEventListener('click', () => this.moveWidget(item, -1, 0));
+            overlay.querySelector('.move-right').addEventListener('click', () => this.moveWidget(item, 1, 0));
 
+            // Ajout des écouteurs de clics pour la taille
             overlay.querySelector('.inc-w').addEventListener('click', () => this.resizeWidget(item, 1, 0));
             overlay.querySelector('.dec-w').addEventListener('click', () => this.resizeWidget(item, -1, 0));
             overlay.querySelector('.inc-h').addEventListener('click', () => this.resizeWidget(item, 0, 1));
@@ -97,7 +95,7 @@ export class DashboardGrid {
     }
 
     /**
-     * Supprime les panneaux d'édition de tous les widgets.
+     * Nettoie les surcouches d'édition.
      */
     removeEditOverlays() {
         const overlays = this.grid.querySelectorAll('.edit-overlay');
@@ -105,7 +103,7 @@ export class DashboardGrid {
     }
 
     /**
-     * Déplace un widget de manière sécurisée sans dépasser de la grille 12x8.
+     * Déplace un widget en limitant sa course à la grille 12x8.
      */
     moveWidget(item, dx, dy) {
         let x = (parseInt(item.getAttribute('data-x')) || 0) + dx;
@@ -124,11 +122,10 @@ export class DashboardGrid {
         item.setAttribute('data-x', x);
         item.setAttribute('data-y', y);
         this.updateGridMetrics();
-        this.saveWidgetLayout(item);
     }
 
     /**
-     * Redimensionne un widget en veillant à ce qu'il reste dans des valeurs cohérentes.
+     * Modifie la taille d'un widget en l'empêchant de dépasser de l'écran.
      */
     resizeWidget(item, dw, dh) {
         const x = parseInt(item.getAttribute('data-x')) || 0;
@@ -136,48 +133,55 @@ export class DashboardGrid {
         let w = (parseInt(item.getAttribute('data-w')) || 2) + dw;
         let h = (parseInt(item.getAttribute('data-h')) || 2) + dh;
 
-        // Tailles minimales logiques
+        // Tailles minimales sécurisées (1x1) et maximales
         if (w < 1) w = 1;
         if (h < 1) h = 1;
-
-        // Limites maximales sur la grille
         if (x + w > 12) w = 12 - x;
         if (y + h > 8) h = 8 - y;
 
         item.setAttribute('data-w', w);
         item.setAttribute('data-h', h);
         this.updateGridMetrics();
-        this.saveWidgetLayout(item);
     }
 
     /**
-     * Sauvegarde la position personnalisée du widget dans le stockage local.
+     * Enregistre l'agencement actuel dans le stockage local.
      */
-    saveWidgetLayout(item) {
-        const id = item.id;
-        const layout = {
-            x: item.getAttribute('data-x'),
-            y: item.getAttribute('data-y'),
-            w: item.getAttribute('data-w'),
-            h: item.getAttribute('data-h')
-        };
-        StorageManager.save(`layout_${id}`, layout);
-    }
-
-    /**
-     * Restaure la mise en page enregistrée par l'enseignant.
-     */
-    restoreLayout() {
+    saveLayout() {
+        const layout = [];
         const items = this.grid.querySelectorAll('.grid-item');
         items.forEach(item => {
-            const saved = StorageManager.get(`layout_${item.id}`);
-            if (saved) {
-                item.setAttribute('data-x', saved.x);
-                item.setAttribute('data-y', saved.y);
-                item.setAttribute('data-w', saved.w);
-                item.setAttribute('data-h', saved.h);
-            }
+            layout.push({
+                id: item.id,
+                x: item.getAttribute('data-x'),
+                y: item.getAttribute('data-y'),
+                w: item.getAttribute('data-w'),
+                h: item.getAttribute('data-h')
+            });
         });
-        this.updateGridMetrics();
+        localStorage.setItem('classboard-grid-layout', JSON.stringify(layout));
+    }
+
+    /**
+     * Charge l'agencement sauvegardé s'il existe.
+     */
+    loadLayout() {
+        const saved = localStorage.getItem('classboard-grid-layout');
+        if (!saved) return;
+
+        try {
+            const layout = JSON.parse(saved);
+            layout.forEach(widgetConfig => {
+                const item = this.grid.querySelector(`#${widgetConfig.id}`);
+                if (item) {
+                    item.setAttribute('data-x', widgetConfig.x);
+                    item.setAttribute('data-y', widgetConfig.y);
+                    item.setAttribute('data-w', widgetConfig.w);
+                    item.setAttribute('data-h', widgetConfig.h);
+                }
+            });
+        } catch (e) {
+            console.error("Impossible de charger l'agencement de la grille", e);
+        }
     }
 }

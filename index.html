@@ -7,67 +7,56 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ff3366">
+    <meta name="theme-color" content="#6366f1">
 </head>
-<body class="theme-cosmic">
+<body class="theme-minimal">
 
     <main id="dashboard-grid" class="dashboard-grid">
         <clock-widget id="widget-clock" class="grid-item" data-x="0" data-y="0" data-w="4" data-h="2"></clock-widget>
         <sound-widget id="widget-sound" class="grid-item" data-x="0" data-y="2" data-w="4" data-h="2"></sound-widget>
-        <homework-widget id="widget-homework" class="grid-item" data-x="0" data-y="4" data-w="4" data-h="4"></homework-widget>
         <timer-widget id="widget-timer" class="grid-item" data-x="4" data-y="0" data-w="2" data-h="2"></timer-widget>
         <noise-widget id="widget-noise" class="grid-item" data-x="4" data-y="2" data-w="2" data-h="2"></noise-widget>
         <schedule-widget id="widget-schedule" class="grid-item" data-x="6" data-y="0" data-w="3" data-h="4"></schedule-widget>
+        <homework-widget id="widget-homework" class="grid-item" data-x="0" data-y="4" data-w="3" data-h="4"></homework-widget>
         <random-widget id="widget-random" class="grid-item" data-x="9" data-y="0" data-w="3" data-h="3"></random-widget>
-        <team-builder-widget id="widget-teambuilder" class="grid-item" data-x="9" data-y="3" data-w="3" data-h="3"></team-builder-widget>
-        <score-widget id="widget-score" class="grid-item" data-x="4" data-y="6" data-w="5" data-h="2"></score-widget>
+        <team-builder-widget id="widget-teambuilder" class="grid-item" data-x="8" data-y="3" data-w="4" data-h="3"></team-builder-widget>
+        <score-widget id="widget-score" class="grid-item" data-x="4" data-y="6" data-w="4" data-h="2"></score-widget>
     </main>
 
-    <footer class="control-dock">
-        <div class="dock-left">
+    <nav class="control-dock">
+        <div class="dock-actions">
             <select id="theme-selector" class="dock-select">
-                <option value="theme-cosmic">🚀 Thème Cosmique</option>
-                <option value="theme-cabin">🌳 Thème Cabane</option>
-                <option value="theme-sunny">☀️ Thème Matinée Ensoleillée</option>
-                <option value="theme-art">🎨 Thème Atelier d'Art</option>
+                <option value="theme-minimal">Minimal 🌌</option>
+                <option value="theme-slate">Ardoise 🍏</option>
+                <option value="theme-forest">Forêt 🌲</option>
+                <option value="theme-ocean">Océan 🌊</option>
+                <option value="theme-autumn">Automne 🍁</option>
+                <option value="theme-spring">Printemps 🌸</option>
             </select>
             
             <button id="btn-edit-grid" class="dock-btn">📐 Éditer la grille</button>
+            
+            <button id="btn-export" class="dock-btn">💾 Sauver</button>
+            <button id="btn-import" class="dock-btn">📂 Charger</button>
+            <button id="btn-settings" class="dock-btn">⚙️</button>
+            <button id="btn-fullscreen" class="dock-btn">🔲 (F)</button>
         </div>
-
-        <div class="dock-right">
-            <button id="btn-fullscreen" class="dock-btn" title="Plein Écran">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-                </svg>
-                Plein Écran
-            </button>
-            <button id="btn-settings" class="dock-btn">⚙️ Configuration</button>
-        </div>
-    </footer>
+        <input type="file" id="import-file" style="display: none;" accept=".json">
+    </nav>
 
     <aside id="settings-panel" class="settings-panel" aria-hidden="true">
         <div class="settings-header">
             <h2>Configuration</h2>
-            <button id="btn-close-settings" class="close-btn">✖</button>
+            <button id="btn-close-settings" class="close-btn">✕</button>
         </div>
         <div class="settings-content">
             <section class="settings-section">
-                <h3>Sauvegardes de classe</h3>
-                <div class="dock-actions">
-                    <button id="btn-export" class="dock-btn">💾 Exporter</button>
-                    <button id="btn-import" class="dock-btn">📂 Importer</button>
-                    <input type="file" id="import-file" accept=".json" style="display: none;">
-                </div>
-            </section>
-            <hr class="settings-divider">
-            <section class="settings-section">
-                <h3>Widgets Actifs</h3>
+                <h3>Widgets actifs</h3>
                 <div class="control-group">
-                    <label class="toggle-switch"><input type="checkbox" id="toggle-clock" checked data-widget="widget-clock"><span class="slider"></span><span class="label-text">🕒 Horloge</span></label>
-                    <label class="toggle-switch"><input type="checkbox" id="toggle-sound" checked data-widget="widget-sound"><span class="slider"></span><span class="label-text">🎵 Sons de classe</span></label>
-                    <label class="toggle-switch"><input type="checkbox" id="toggle-timer" checked data-widget="widget-timer"><span class="slider"></span><span class="label-text">⏱️ Minuteur</span></label>
-                    <label class="toggle-switch"><input type="checkbox" id="toggle-noise" checked data-widget="widget-noise"><span class="slider"></span><span class="label-text">🎚️ Sonomètre</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-clock" checked data-widget="widget-clock"><span class="slider"></span><span class="label-text">⏱️ Horloge</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-sound" checked data-widget="widget-sound"><span class="slider"></span><span class="label-text">🔊 Sons</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-timer" checked data-widget="widget-timer"><span class="slider"></span><span class="label-text">⏲️ Minuteur</span></label>
+                    <label class="toggle-switch"><input type="checkbox" id="toggle-noise" checked data-widget="widget-noise"><span class="slider"></span><span class="label-text">🎤 Sonomètre</span></label>
                     <label class="toggle-switch"><input type="checkbox" id="toggle-schedule" checked data-widget="widget-schedule"><span class="slider"></span><span class="label-text">📅 Programme</span></label>
                     <label class="toggle-switch"><input type="checkbox" id="toggle-homework" checked data-widget="widget-homework"><span class="slider"></span><span class="label-text">📝 Devoirs</span></label>
                     <label class="toggle-switch"><input type="checkbox" id="toggle-random" checked data-widget="widget-random"><span class="slider"></span><span class="label-text">🎲 Tirage au sort</span></label>
